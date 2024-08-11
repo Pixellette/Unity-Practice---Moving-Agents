@@ -20,7 +20,9 @@ public class Bot : MonoBehaviour
         Vector3 wanderTarget = Vector3.zero; // cannot be local as needs to remember between calls
 
     [Header ("Hide Settings")]
-        [SerializeField] float hideDistance = 5;
+        [SerializeField] float hideDistance = 50.0f;
+        [SerializeField] float checkHideDist = 10.0f;
+        [SerializeField] float bounceRaybackDist = 100.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -36,7 +38,7 @@ public class Bot : MonoBehaviour
         //Persue();
         // Evade();
         // Wander();
-        Hide();
+        CleverHide();
     }
 
     void Seek(Vector3 location)
@@ -121,6 +123,39 @@ public class Bot : MonoBehaviour
         } // End of loop 
 
         Seek(chosenSpot);
+    }
+
+    void CleverHide()
+    {
+        // find the best hiding space - closest to agent 
+
+        float dist = Mathf.Infinity;
+        Vector3 chosenSpot = Vector3.zero;
+        Vector3 chosenDir = Vector3.zero;
+        GameObject chosenGO = World.Instance.GetHidingSpots()[0]; // setting to the very first one so its atleast initialised to something 
+
+        // check each possible hiding spot 
+        for (int i = 0; i < World.Instance.GetHidingSpots().Length; i++)
+        {
+            Vector3 hideDir = World.Instance.GetHidingSpots()[i].transform.position - target.transform.position; // vector from the target (cop) to obstacle (tree)
+            Vector3 hidePos = World.Instance.GetHidingSpots()[i].transform.position + hideDir.normalized * checkHideDist; //Create a space behind the tree for our hide spot by using hideDir and a distance behind
+
+            // Check if tree is closer than last pull - if YES then update Chosen
+            if(Vector3.Distance(this.transform.position, hidePos) < dist)
+            {
+                chosenSpot = hidePos;
+                chosenDir = hideDir;
+                chosenGO = World.Instance.GetHidingSpots()[i];
+                dist = Vector3.Distance(this.transform.position, hidePos);
+            }
+        } // End of loop 
+
+        Collider hideCol = chosenGO.GetComponent<Collider>(); // doing a get comp in here, which is not optimal, but there's really no other option of where to put it
+        Ray backRay = new Ray(chosenSpot, -chosenDir.normalized);
+        RaycastHit info;
+        hideCol.Raycast(backRay, out info, bounceRaybackDist); // the 'hit' point at the back will be stored in info
+
+        Seek(info.point + chosenDir.normalized * hideDistance);
     }
 
 } // End of Class

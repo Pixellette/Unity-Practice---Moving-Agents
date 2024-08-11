@@ -315,6 +315,18 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6487603461101311260, guid: f38bdf525ef289d4dabb685f04959ef4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6487603461101311260, guid: f38bdf525ef289d4dabb685f04959ef4, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6487603461101311260, guid: f38bdf525ef289d4dabb685f04959ef4, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6487603461101311260, guid: f38bdf525ef289d4dabb685f04959ef4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12.1
       objectReference: {fileID: 0}
@@ -590,6 +602,8 @@ MonoBehaviour:
   wanderDistance: 20
   wanderJitter: 2
   hideDistance: 5
+  checkHideDist: 10
+  bounceRaybackDist: 100
 --- !u!195 &1005122303
 NavMeshAgent:
   m_ObjectHideFlags: 0
