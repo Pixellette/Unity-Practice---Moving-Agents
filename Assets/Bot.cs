@@ -19,6 +19,8 @@ public class Bot : MonoBehaviour
         [SerializeField] float wanderJitter = 1; 
         Vector3 wanderTarget = Vector3.zero; // cannot be local as needs to remember between calls
 
+    [Header ("Hide Settings")]
+        [SerializeField] float hideDistance = 5;
 
     // Start is called before the first frame update
     void Start()
@@ -33,7 +35,8 @@ public class Bot : MonoBehaviour
         // Flee(target.transform.position); // find the cop and set as target. 
         //Persue();
         // Evade();
-        Wander();
+        // Wander();
+        Hide();
     }
 
     void Seek(Vector3 location)
@@ -94,6 +97,30 @@ public class Bot : MonoBehaviour
 
         // Finally Seek the target location
         Seek(targetWorld);
+    }
+
+    void Hide()
+    {
+        // find the best hiding space - closest to agent 
+
+        float dist = Mathf.Infinity;
+        Vector3 chosenSpot = Vector3.zero;
+
+        // check each possible hiding spot 
+        for (int i = 0; i < World.Instance.GetHidingSpots().Length; i++)
+        {
+            Vector3 hideDir = World.Instance.GetHidingSpots()[i].transform.position - target.transform.position; // vector from the target (cop) to obstacle (tree)
+            Vector3 hidePos = World.Instance.GetHidingSpots()[i].transform.position + hideDir.normalized * hideDistance; //Create a space behind the tree for our hide spot by using hideDir and a distance behind
+
+            // Check if tree is closer than last pull - if YES then update Chosen
+            if(Vector3.Distance(this.transform.position, hidePos) < dist)
+            {
+                chosenSpot = hidePos;
+                dist = Vector3.Distance(this.transform.position, hidePos);
+            }
+        } // End of loop 
+
+        Seek(chosenSpot);
     }
 
 } // End of Class
