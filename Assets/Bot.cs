@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
 using UnityEngine.AI;
@@ -10,6 +11,14 @@ public class Bot : MonoBehaviour
     NavMeshAgent agent;
     public GameObject target;  // find the cop
     Drive ds;
+
+    // 3 key variables of the Wander concept. Change these to change the behaviour
+    [Header ("Wander Settings")]
+        [SerializeField] float wanderRadius = 10;
+        [SerializeField] public float wanderDistance = 20;
+        [SerializeField] float wanderJitter = 1; 
+        Vector3 wanderTarget = Vector3.zero; // cannot be local as needs to remember between calls
+
 
     // Start is called before the first frame update
     void Start()
@@ -23,7 +32,8 @@ public class Bot : MonoBehaviour
     {
         // Flee(target.transform.position); // find the cop and set as target. 
         //Persue();
-        Evade();
+        // Evade();
+        Wander();
     }
 
     void Seek(Vector3 location)
@@ -68,5 +78,22 @@ public class Bot : MonoBehaviour
         Debug.Log("Evading"); // TODO: debug
     } // End of Evade Method
 
+    void Wander()
+    {
+        wanderTarget += new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f) * wanderJitter,   // X
+                                    0,                                                      // Y
+                                    UnityEngine.Random.Range(-1.0f, 1.0f) * wanderJitter);  // Z
+
+        // Move the target back onto the circle (currently ON the Agent)
+        wanderTarget.Normalize(); // get a better number
+        wanderTarget *= wanderRadius; // push it out to the right length
+
+        // Move circle to *infront* of Agent
+        Vector3 targetLocal = wanderTarget + new Vector3(0, 0, wanderDistance); // local because we are imagining the Agent as the center of the world
+        Vector3 targetWorld = this.gameObject.transform.InverseTransformVector(targetLocal); // Now convert to world location 
+
+        // Finally Seek the target location
+        Seek(targetWorld);
+    }
 
 } // End of Class

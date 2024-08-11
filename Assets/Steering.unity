@@ -400,6 +400,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1197769732}
+  wanderRadius: 20
+  wanderDistance: 20
+  wanderJitter: 2
 --- !u!195 &1005122303
 NavMeshAgent:
   m_ObjectHideFlags: 0
