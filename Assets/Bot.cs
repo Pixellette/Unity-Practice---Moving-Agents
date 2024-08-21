@@ -47,8 +47,12 @@ public class Bot : MonoBehaviour
                 cooldown = true; 
                 Invoke("BehaviourCooldown", 5);
             }
-            else {
+            else if (CanSeeTarget() && !CanSeeMe())
+            {
                 Persue();
+            }
+            else {
+                Wander();
             }
         }
         
