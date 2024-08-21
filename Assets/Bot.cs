@@ -12,6 +12,8 @@ public class Bot : MonoBehaviour
     public GameObject target;  // find the cop
     Drive ds;
 
+    [SerializeField] bool cooldown = false; 
+
     // 3 key variables of the Wander concept. Change these to change the behaviour
     [Header ("Wander Settings")]
         [SerializeField] float wanderRadius = 10;
@@ -37,12 +39,19 @@ public class Bot : MonoBehaviour
         // Flee(target.transform.position); // find the cop and set as target. 
         //Persue();
         // Evade();
-        // Wander();
-
-        if(CanSeeTarget())
+        if(!cooldown)
         {
-            CleverHide();
+            if(CanSeeTarget() && CanSeeMe())
+            {
+                CleverHide();
+                cooldown = true; 
+                Invoke("BehaviourCooldown", 5);
+            }
+            else {
+                Persue();
+            }
         }
+        
     }
 
     void Seek(Vector3 location)
@@ -166,7 +175,8 @@ public class Bot : MonoBehaviour
     {
         RaycastHit raycastInfo; 
         Vector3 rayToTarget = target.transform.position - this.transform.position; 
-        if(Physics.Raycast(this.transform.position, rayToTarget, out raycastInfo))
+        float lookAngle = Vector3.Angle(this.transform.forward, rayToTarget); // calc angle 
+        if(lookAngle < 60 && Physics.Raycast(this.transform.position, rayToTarget, out raycastInfo))
         {
             if (raycastInfo.transform.gameObject.tag == "cop")
             { 
@@ -174,6 +184,33 @@ public class Bot : MonoBehaviour
             }
         }
         return false;
+    }
+
+    bool CanSeeMe() 
+    {
+        // Can my target see me 
+        // Return TRUE if they can and FALSE if they can't 
+
+        // TODO: 
+        // Draw ray to target 
+        // get target's look direction 
+        // create angle 
+        // check 
+        
+        Vector3 rayToTarget = this.transform.position - target.transform.position; 
+        float lookAngle = Vector3.Angle(target.transform.forward, rayToTarget); 
+
+        if (lookAngle < 60)
+        {
+            return true; 
+        }
+
+        return false;
+    }
+
+    void BehaviourCooldown() 
+    {
+        cooldown = false;
     }
 
 } // End of Class
